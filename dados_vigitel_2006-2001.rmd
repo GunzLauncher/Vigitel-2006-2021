@@ -1,0 +1,79 @@
+Pacotes:
+```{r}
+if(!require(readxl))
+  install.packages('readxl')
+if(!require(dplyr))
+  install.packages('dplyr')
+if(!require(purrr))
+  install.packages('purrr')
+if(!require(survey))
+  install.packages('survey')
+```
+Diretório e lista de arquivos:
+```{r}
+caminho_dados <- "C:/Users/lgdmt/OneDrive/Área de Trabalho/Material Economia/Monografia/dados/Dados_vigitel"
+
+xls_vigitel <- list.files(path = caminho_dados, pattern = "\\.xls$", full.names = TRUE)
+
+```
+Função para ler cada arquivo e adicionar uma coluna do ano:
+```{r}
+ler_arquivo <- function(arquivo) {
+  df <- read_excel(arquivo, col_types = "text")  # Lê todas as colunas como texto
+  df$ano <- as.numeric(gsub("\\D", "", basename(arquivo)))  # Extrai o ano do nome do arquivo
+  return(df)
+}
+```
+Ler todos os arquivos e empilhar em um único dataframe:
+```{r}
+dados_vigitel <- map_dfr(xls_vigitel, ler_arquivo)
+#write.csv(dados_vigitel, "dados_vigitel_empilhados_2006_2021.csv", row.names = FALSE) #  O CSV desse arquivo tem mais de 1Gb
+```
+Criando df apenas com as possiveis variáveis de interesse e alterando o nome da coluna:
+```{r}
+df_colunas_possivel_interesse <- dados_vigitel %>% select(ordem, ano, cidade,  q6, q7, q8a, q8_anos, q60, q61, q61a, q61_fx, q61a_fx, q63, q64, r402, q69, r900, pesorake)
+
+df_colunas_interesse_nomeadas <- df_colunas_possivel_interesse %>%
+  rename(
+    "idade" = "q6",
+    "sexo" = "q7",
+    "grau_escolaridade" = "q8a",
+    "anos_estudo" = "q8_anos",
+    "fumante" = "q60",
+    "cigarros_diario" = "q61",
+    "cigarros_semanal" = "q61a",
+    "cigarros_diario_fx" = "q61_fx",
+    "cigarros_semanal_fx" = "q61a_fx",
+    "tentou_parar_cigarro" = "q63",
+    "ex-fumante" = "q64",
+    "valor_pago_cigarro" = "r402",
+    "cor" = "q69",
+    "bolsa_familia" = "r900"
+    )
+```
+Df apenas com as variáveis que serão utilizadas no modelo:
+```{r}
+df_teste <- df_colunas_interesse_nomeadas %>% select(ordem, ano, cidade, idade, sexo, grau_escolaridade, anos_estudo, fumante, cigarros_diario, cigarros_semanal, cigarros_diario_fx, cigarros_semanal_fx, cor, pesorake)
+```
+Alterando o tipo das colunas (anteriormente alteradas para chr para possibilitar carregar os dados):
+```{r}
+df_teste <- df_teste %>%
+  mutate(
+    ordem = as.integer(ordem),
+    cidade = as.integer(cidade),
+    idade = as.integer(idade),
+    sexo = as.integer(sexo),
+    grau_escolaridade = as.integer(grau_escolaridade),
+    anos_estudo = as.integer(anos_estudo),
+    fumante = as.integer(fumante),
+    cigarros_diario = as.integer(cigarros_diario),
+    cigarros_semanal = as.integer(cigarros_semanal),
+    cigarros_diario_fx = as.integer(cigarros_diario_fx),
+    cigarros_semanal_fx = as.integer(cigarros_semanal_fx),
+    cor = as.integer(cor),
+    pesorake = as.numeric(pesorake)
+  )
+df_teste
+#saveRDS(df_teste, "dados_vigitel_teste.rds")
+#write.csv(df_teste, "dados_vigitel_teste.csv", row.names = FALSE)
+```

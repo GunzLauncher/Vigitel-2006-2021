@@ -1,0 +1,42 @@
+Pacotes utilizados:
+
+```{r}
+if(!require(dplyr))
+  install.packages('dplyr')
+if(!require(plm))
+  install.packages('plm')
+if(!require(modelsummary))
+  install.packages("modelsummary")
+if(!require(pandoc))
+  install.packages("pandoc")
+```
+Carregando e visualizando os dados:
+
+```{r}
+dados <- readRDS("C:/Users/lgdmt/OneDrive/Área de Trabalho/Material Economia/Monografia/Script/df_vigitel_2006_2021_modelo.rds")
+dados <- dados %>%
+  select(-Mulher, -Adolescente, -Adulto, -Idoso)
+dados
+```
+
+Criar variáveis dummy para as políticas:
+
+```{r}
+dados$pos_politica_2011 <- ifelse(dados$ano >= 2011, 1, 0)
+dados$pos_politica_2014 <- ifelse(dados$ano >= 2014, 1, 0)
+```
+
+Modelo LSDV para fuma_diariamente
+```{r}
+modelo_lsdv_fuma_diariamente <- lm(fuma_diariamente ~ pos_politica_2011 + pos_politica_2014 +
+                  Homem + homem_adolescente + homem_adulto + homem_idoso +
+                  mulher_adolescente + mulher_adulto + mulher_idoso +
+                  Nunca_Estudou + Primeiro_Grau + Ensino_Medio +
+                  Ensino_Superior + Pos_Graduacao + branca_cor + preta_cor +
+                  amarela_cor + parda_cor + indigena_cor + 
+                  factor(ano) + factor(nome_capital),  # Dummies para ano e capital
+                  data = dados, weights = pesorake)
+
+# Resumo do modelo
+summary(modelo_lsdv_fuma_diariamente)
+```

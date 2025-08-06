@@ -1,0 +1,132 @@
+Pacotes:
+```{r}
+if(!require(readxl))
+  install.packages('readxl')
+if(!require(dplyr))
+  install.packages('dplyr')
+if(!require(tidyr))
+  install.packages('tidyr')
+if(!require(purrr))
+  install.packages('purrr')
+if(!require(survey))
+  install.packages('survey')
+```
+Carregando e visualizando dados:
+```{r}
+df_vigitel_2006_2021_inicio <- readRDS("C:/Users/lgdmt/OneDrive/Área de Trabalho/Material Economia/Monografia/Script/dados_vigitel_teste.rds")
+df_vigitel_2006_2021 <- df_vigitel_2006_2021_inicio
+#write.csv(df_vigitel_2006_2021_inicio, "df_vigitel_2006_2021_inicio.csv", row.names = FALSE)
+df_vigitel_2006_2021
+```
+
+Ajustes nas variáveis
+
+Cidade:
+```{r}
+# Vetor com os nomes das capitais, na ordem correspondente aos números:
+capitais <- c("Aracaju", "Belém", "Belo Horizonte", "Boa Vista", 
+              "Campo Grande", "Cuiabá", "Curitiba", "Florianópolis", "Fortaleza", 
+              "Goiânia", "João Pessoa", "Macapá", "Maceió", "Manaus", "Natal", 
+              "Palmas", "Porto Alegre", "Porto Velho", "Recife", "Rio Branco", 
+              "Rio de Janeiro", "Salvador", "São Luís", "São Paulo", "Teresina", "Vitória", "Distrito Federal")
+
+# Adicionando a coluna com o nome da capital:
+df_vigitel_2006_2021 <- df_vigitel_2006_2021 %>%
+  mutate(nome_capital = capitais[cidade])
+```
+
+Separar idades em faixa etaria:
+```{r}
+df_vigitel_2006_2021 <- df_vigitel_2006_2021 %>%
+  mutate(
+    Adolescente = ifelse(idade < 20, 1, 0),
+    Adulto = ifelse(idade >= 20 & idade <= 59, 1, 0),
+    Idoso = ifelse(idade >= 65, 1, 0)
+    )
+```
+
+Criação das colunas binárias para sexo:
+```{r}
+df_vigitel_2006_2021 <- df_vigitel_2006_2021 %>%
+  mutate(Homem = ifelse(sexo == 1, 1, 0),
+         Mulher = ifelse(sexo == 2, 1, 0))
+```
+
+Nível de Educação:
+```{r}
+# Criando as colunas binárias para os grupos educacionais:
+df_vigitel_2006_2021 <- df_vigitel_2006_2021 %>%
+  mutate(
+    grau_escolaridade = ifelse(grau_escolaridade %in% c(9, 10), 0, grau_escolaridade),
+    grau_escolaridade = replace_na(grau_escolaridade, 0),  # Substitui NA por 0
+    grau_escolaridade = ifelse(grau_escolaridade %in% c(777, 888), 0, grau_escolaridade), # Substituindo "777" e "888" por 0
+    Nunca_Estudou = ifelse(grau_escolaridade == 8, 1, 0),
+    Primeiro_Grau = ifelse(grau_escolaridade %in% c(1, 2, 3, 4), 1, 0),
+    Ensino_Medio = ifelse(grau_escolaridade == 5, 1, 0),
+    Ensino_Superior = ifelse(grau_escolaridade == 6, 1, 0),
+    Pos_Graduacao = ifelse(grau_escolaridade == 7, 1, 0)
+  )
+```
+
+cor:
+```{r}
+df_vigitel_2006_2021 <- df_vigitel_2006_2021 %>%
+  mutate(
+    branca_cor = ifelse(cor == 1, 1, 0),
+    preta_cor = ifelse(cor == 2, 1, 0),
+    amarela_cor = ifelse(cor == 3, 1, 0),
+    parda_cor = ifelse(cor == 4, 1, 0),
+    indigena_cor = ifelse(cor == 5, 1, 0),
+  ) %>%
+mutate(across(c(branca_cor, preta_cor, amarela_cor, parda_cor, indigena_cor), ~ replace_na(.x, 0)))
+```
+
+
+Fumantes:
+```{r}
+#Criando a variável binária para fumantes
+df_vigitel_2006_2021 <- df_vigitel_2006_2021 %>%
+  mutate(
+    fuma_diariamente = ifelse(fumante == 1, 1, 0),
+    fuma_mas_nao_diariamente = ifelse(fumante == 2, 1, 0),
+    nao_fuma = ifelse(fumante == 3, 1, 0)
+  ) %>%
+mutate(across(c(fuma_diariamente, fuma_mas_nao_diariamente, nao_fuma), ~ replace_na(.x, 0)))
+```
+
+faixa etaria OMS por sexo
+```{r}
+df_vigitel_2006_2021 <- df_vigitel_2006_2021 %>%
+  mutate(
+    homem_adolescente = ifelse(Adolescente == 1 & Homem == 1, 1, 0),
+    homem_adulto = ifelse(Adulto == 1 & Homem == 1, 1, 0),
+    homem_idoso = ifelse(Idoso == 1 & Homem == 1, 1, 0),
+    mulher_adolescente = ifelse(Adolescente == 1 & Mulher == 1, 1, 0),
+    mulher_adulto = ifelse(Adulto == 1 & Mulher == 1, 1, 0),
+    mulher_idoso = ifelse(Idoso == 1 & Mulher == 1, 1, 0)
+  )
+df_vigitel_2006_2021
+```
+
+Visualização final do df e criação de arquivo CSV:
+```{r}
+df_vigitel_2006_2021_modelo <- df_vigitel_2006_2021 %>%
+  select(-ordem, -idade, -sexo, -grau_escolaridade, -anos_estudo, -fumante, -cigarros_diario, -cigarros_semanal, -cigarros_diario_fx, -cigarros_semanal_fx, -cor)
+
+df_vigitel_2006_2021_modelo <- df_vigitel_2006_2021_modelo %>%
+  select(ano, cidade, nome_capital, Adolescente, Adulto, Idoso, Homem, Mulher, homem_adolescente, homem_adulto, homem_idoso, mulher_adolescente, mulher_adulto, mulher_idoso, Nunca_Estudou, Primeiro_Grau, Ensino_Medio, Ensino_Superior, Pos_Graduacao, branca_cor, preta_cor, amarela_cor, parda_cor, indigena_cor, fuma_diariamente, fuma_mas_nao_diariamente, nao_fuma, pesorake, everything())
+
+summary(df_vigitel_2006_2021_modelo)
+#write.csv(df_vigitel_2006_2021_modelo, "df_vigitel_2006_2021_modelo.csv", row.names = FALSE)
+```
+
+Visualização do df final
+```{r}
+df_vigitel_2006_2021_modelo
+```
+
+
+Arquivo rds para fase seguinte:
+```{r}
+#saveRDS(df_vigitel_2006_2021_modelo, "df_vigitel_2006_2021_modelo.rds")
+```
