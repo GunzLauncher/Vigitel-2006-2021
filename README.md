@@ -1,5 +1,7 @@
 # Vigitel-2006-2021
 
+For this analysis, the R programming language was used in RStudio.
+
 Impact analysis of anti-smoking public policies in Brazil, using the time series from the Epidemiological Analysis and Surveillance of Non-communicable Diseases (VIGITEL)
 
 # Step 1: dados_Vigitel_2006-2021.rmd
@@ -23,6 +25,8 @@ The treated database is submitted to the LSDV model, a statistical technique use
 # PT - BR
 
 # Vigitel-2006-2021
+
+Para essa análise foi utilizado a linguagem de programação R no RStudio.
 
 Análise de impacto das políticas públicas antitabagistas no Brasil, utilizando a série temporal da Análise Epidemiológica e Vigilância de Doenças Não Transmissíveis (VIGITEL)
 
