@@ -13,7 +13,7 @@ if(!require(survey))
 ```
 Carregando e visualizando dados:
 ```{r}
-df_vigitel_2006_2021_inicio <- readRDS("C:/Users/lgdmt/OneDrive/Área de Trabalho/Material Economia/Monografia/Script/dados_vigitel_teste.rds")
+df_vigitel_2006_2021_inicio <- readRDS("dados_vigitel_teste.rds")
 df_vigitel_2006_2021 <- df_vigitel_2006_2021_inicio
 #write.csv(df_vigitel_2006_2021_inicio, "df_vigitel_2006_2021_inicio.csv", row.names = FALSE)
 df_vigitel_2006_2021
