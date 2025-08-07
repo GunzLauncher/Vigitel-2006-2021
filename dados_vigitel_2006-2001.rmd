@@ -11,7 +11,7 @@ if(!require(survey))
 ```
 Diretório e lista de arquivos:
 ```{r}
-caminho_dados <- "C:/Users/lgdmt/OneDrive/Área de Trabalho/Material Economia/Monografia/dados/Dados_vigitel"
+caminho_dados <- "Dados_vigitel" # Path da pasta com todos os arquivos xls de cada ano da VIGITEL
 
 xls_vigitel <- list.files(path = caminho_dados, pattern = "\\.xls$", full.names = TRUE)
 
