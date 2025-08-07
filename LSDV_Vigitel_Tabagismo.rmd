@@ -13,7 +13,7 @@ if(!require(pandoc))
 Carregando e visualizando os dados:
 
 ```{r}
-dados <- readRDS("C:/Users/lgdmt/OneDrive/Área de Trabalho/Material Economia/Monografia/Script/df_vigitel_2006_2021_modelo.rds")
+dados <- readRDS("df_vigitel_2006_2021_modelo.rds")
 dados <- dados %>%
   select(-Mulher, -Adolescente, -Adulto, -Idoso)
 dados
